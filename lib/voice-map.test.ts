@@ -18,4 +18,10 @@ describe('pickVoice', () => {
   it('maps hi-in + female', () => {
     expect(pickVoice('hi-in', 'female')).toBe('Riya-Rao-Hindi-Urdu');
   });
+  it('maps te-in + male', () => {
+    expect(pickVoice('te-in', 'male')).toBe('Krishna-Telugu');
+  });
+  it('maps te-in + female', () => {
+    expect(pickVoice('te-in', 'female')).toBe('Sita-Telugu');
+  });
 });

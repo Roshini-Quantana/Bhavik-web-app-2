@@ -13,6 +13,7 @@ const LANG_DIRECTIVE: Record<Language, string> = {
   'en-gb': 'Speak natural British English.',
   'en-au': 'Speak natural Australian English.',
   'hi-in': 'Speak Hindi by default; switch to English if the user does.',
+  'te-in': 'Speak Telugu by default; switch to English if the user does.',
 };
 
 export function buildSystemPrompt(

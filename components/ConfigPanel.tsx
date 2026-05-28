@@ -51,6 +51,7 @@ export default function ConfigPanel(p: Props) {
               <option value="en-gb">EN — UK</option>
               <option value="en-au">EN — Australia</option>
               <option value="hi-in">HI — India</option>
+              <option value="te-in">TE — India</option>
             </select>
             <span className="select-arrow">▾</span>
           </div>

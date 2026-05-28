@@ -3,7 +3,8 @@ export type Language =
   | 'en-us'
   | 'en-gb'
   | 'en-au'
-  | 'hi-in';
+  | 'hi-in'
+  | 'te-in';
 
 export type VoiceGender = 'male' | 'female' | 'neutral';
 
