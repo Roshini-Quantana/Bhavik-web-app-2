@@ -1,0 +1,55 @@
+{
+  "name": "Bhavik Company Scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scrape-company",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "webhookId": "bhavik-scrape"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.url }}",
+        "options": {
+          "timeout": 6000,
+          "response": { "response": { "responseFormat": "text" } }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "User-Agent", "value": "BhavikScraper/1.0" }
+          ]
+        }
+      },
+      "id": "http-1",
+      "name": "Fetch HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = String($input.first().json.data ?? $input.first().json.body ?? '');\nfunction match(re){ const m = html.match(re); return m ? m[1].trim() : ''; }\nconst title = match(/<title[^>]*>([^<]+)<\\/title>/i);\nconst ogSite = match(/<meta[^>]+property=[\"']og:site_name[\"'][^>]+content=[\"']([^\"']+)[\"']/i);\nconst metaDesc = match(/<meta[^>]+name=[\"']description[\"'][^>]+content=[\"']([^\"']+)[\"']/i);\nconst ogDesc = match(/<meta[^>]+property=[\"']og:description[\"'][^>]+content=[\"']([^\"']+)[\"']/i);\nconst firstP = match(/<p[^>]*>([^<]+)<\\/p>/i);\nconst h2s = [...html.matchAll(/<h2[^>]*>([^<]+)<\\/h2>/gi)].map(m=>m[1].trim()).slice(0,5);\nconst summary = metaDesc || ogDesc || firstP.slice(0,300);\nconst hay = (summary + ' ' + title).toLowerCase();\nconst KW = [['saas','SaaS'],['e-commerce','E-commerce'],['ecommerce','E-commerce'],['fintech','FinTech'],['healthcare','Healthcare'],['consulting','Consulting'],['marketing','Marketing'],['logistics','Logistics'],['manufacturing','Manufacturing'],['ai','AI / ML']];\nlet industry = '';\nfor (const [n,l] of KW) if (hay.includes(n)) { industry = l; break; }\nreturn [{ json: { company_name: ogSite || title || '', summary, industry, services: h2s } }];"
+      },
+      "id": "code-1",
+      "name": "Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Fetch HTML", "type": "main", "index": 0 }]] },
+    "Fetch HTML": { "main": [[{ "node": "Extract", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "settings": { "executionOrder": "v1" }
+}
