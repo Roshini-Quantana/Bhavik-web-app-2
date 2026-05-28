@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bhavik · AI Cold Call OS</title>
+  <meta name="description" content="Bhavik AI Voice Agent – Cold Call Operating System. Initiate AI-powered cold calls with real-time transcription and sentiment analysis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══ TOP NAV ═══ -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <span class="brand">BHAVIK</span>
+      <div class="nav-tags">
+        <span class="nav-tag">AI VOICE AGENT</span>
+        <span class="nav-tag">COLD CALL OS</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <div class="status-badge" id="status-badge">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-text" id="status-text">STANDBY</span>
+        <span class="status-version">v2.0</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ MAIN LAYOUT ═══ -->
+  <main class="layout">
+
+    <!-- ═══ LEFT PANEL ═══ -->
+    <aside class="panel panel-left">
+
+      <!-- TARGET INTEL -->
+      <section class="card" id="target-intel-card">
+        <div class="card-header">
+          <span class="card-label">TARGET INTEL</span>
+        </div>
+        <div class="url-input-group">
+          <span class="url-prefix">https://</span>
+          <input
+            type="text"
+            id="target-url"
+            class="url-input"
+            placeholder="company.com"
+            autocomplete="off"
+          />
+          <button class="url-search-btn" id="url-search-btn" title="Search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- VOICE CONFIG -->
+      <section class="card" id="voice-config-card">
+        <div class="card-header">
+          <span class="card-label">VOICE CONFIG</span>
+        </div>
+        <div class="select-row">
+          <div class="custom-select-wrapper">
+            <select id="language-select" class="custom-select">
+              <option value="en-in">EN — India</option>
+              <option value="en-us">EN — USA</option>
+              <option value="en-gb">EN — UK</option>
+              <option value="en-au">EN — Australia</option>
+              <option value="hi-in">HI — India</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+          <div class="custom-select-wrapper">
+            <select id="voice-select" class="custom-select">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="neutral">Neutral</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PERSONA -->
+      <section class="card" id="persona-card">
+        <div class="card-header">
+          <span class="card-label">PERSONA</span>
+        </div>
+        <div class="persona-grid">
+          <button class="persona-tag active" id="persona-professional" data-persona="Professional">
+            <span class="persona-dot"></span>Professional
+            <span class="persona-key">P1</span>
+          </button>
+          <button class="persona-tag" id="persona-friendly" data-persona="Friendly">
+            <span class="persona-dot"></span>Friendly
+            <span class="persona-key">P2</span>
+          </button>
+          <button class="persona-tag" id="persona-direct" data-persona="Direct">
+            <span class="persona-dot"></span>Direct
+            <span class="persona-key">P3</span>
+          </button>
+          <button class="persona-tag" id="persona-consultative" data-persona="Consultative">
+            <span class="persona-dot"></span>Consultative
+            <span class="persona-key">P4</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- AGENT IDENTITY -->
+      <section class="card agent-card" id="agent-card">
+        <div class="agent-avatar" id="agent-avatar">B</div>
+        <div class="agent-info">
+          <div class="agent-name">Bhavik</div>
+          <div class="agent-status-line">
+            <span class="agent-role">AI Cold Caller</span>
+            <span class="agent-sep">·</span>
+            <span class="agent-ready" id="agent-ready-text">Ready</span>
+          </div>
+        </div>
+        <div class="agent-pulse" id="agent-pulse"></div>
+      </section>
+
+      <!-- INITIATE CALL BUTTON -->
+      <button class="call-btn" id="call-btn">
+        <svg class="call-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l1.27-.73a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span id="call-btn-text">INITIATE CALL</span>
+      </button>
+
+    </aside>
+
+    <!-- ═══ RIGHT PANEL ═══ -->
+    <section class="panel panel-right">
+
+      <!-- AUDIO WAVEFORM -->
+      <div class="card waveform-card" id="waveform-card">
+        <div class="card-header-inline">
+          <span class="card-label">AUDIO WAVEFORM</span>
+          <span class="badge-idle" id="waveform-badge">IDLE</span>
+        </div>
+        <div class="waveform-container" id="waveform-container">
+          <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+          <div class="waveform-idle-overlay" id="waveform-overlay">
+            <div class="waveform-flat-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI PROCESS STREAM -->
+      <div class="card stream-card" id="stream-card">
+        <div class="card-header-inline">
+          <span class="stream-dot"></span>
+          <span class="card-label stream-label">AI PROCESS STREAM</span>
+        </div>
+        <div class="stream-content" id="stream-content">
+          <div class="stream-line awaiting" id="stream-awaiting">… awaiting input…</div>
+        </div>
+      </div>
+
+      <!-- LIVE TRANSCRIPT -->
+      <div class="card transcript-card" id="transcript-card">
+        <div class="card-header-inline">
+          <span class="card-label">LIVE TRANSCRIPT</span>
+          <span class="transcript-msgs" id="transcript-msgs">0 msgs</span>
+        </div>
+        <div class="transcript-content" id="transcript-content">
+          <div class="transcript-empty" id="transcript-empty">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            <span>Transcript will stream here</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS BAR -->
+      <div class="stats-bar" id="stats-bar">
+        <div class="stat-item" id="stat-sentiment">
+          <div class="stat-indicator">
+            <span class="stat-bar-visual" id="sentiment-bar">
+              <span class="bar-seg active"></span>
+              <span class="bar-seg active"></span>
+              <span class="bar-seg"></span>
+            </span>
+          </div>
+          <span class="stat-label">sentiment</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" id="stat-turns">
+          <div class="stat-value" id="turns-value">0</div>
+          <span class="stat-label">turns</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" id="stat-intent">
+          <div class="stat-indicator">
+            <span class="intent-bar-visual" id="intent-bar">
+              <span class="int-seg active"></span>
+              <span class="int-seg active"></span>
+              <span class="int-seg"></span>
+              <span class="int-seg"></span>
+            </span>
+          </div>
+          <span class="stat-label">intent</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" id="stat-duration">
+          <div class="stat-value timer" id="duration-value">0:00</div>
+          <span class="stat-label">duration</span>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
