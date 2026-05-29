@@ -26,6 +26,7 @@ export default function Page() {
   const [stream, setStream] = useState<StreamEntry[]>([]);
   const [duration, setDuration] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [ultravoxCallSessionId, setUltravoxCallSessionId] = useState<string | null>(null);
 
   const log = useCallback((text: string, kind: StreamEntry['kind'] = 'info') => {
     setStream((s) => [...s, { ts: now(), text, kind }]);
@@ -59,6 +60,7 @@ export default function Page() {
     log(`Got Ultravox session. Company: ${data.companyContext.company_name || '(unknown)'}`, 'ok');
     log('Joining call…');
     setStartedAt(Date.now());
+    setUltravoxCallSessionId(data.callSessionId);
     ux.join(data.joinUrl);
     log('Connected', 'ok');
   }, [language, voice, persona, log, ux]);
@@ -67,8 +69,7 @@ export default function Page() {
     log(`Preparing Telugu context for ${fullUrl}`);
     setStartedAt(Date.now());
     await tg.start({ url: fullUrl, persona, voice });
-    log('Bhavik speaking in Telugu', 'ok');
-    log('Click the call button again to record your reply', 'info');
+    log('Live: Bhavik and you are now on the line — speak naturally', 'ok');
   }, [log, tg, persona, voice]);
 
   const start = useCallback(async () => {
@@ -95,34 +96,30 @@ export default function Page() {
 
   const end = useCallback(async () => {
     log('Ending call…');
-    if (isTelugu) tg.end();
-    else await ux.leave();
+    if (isTelugu) {
+      tg.end(); // hook fires its own /api/end-call
+    } else {
+      await ux.leave();
+      const cs = ultravoxCallSessionId;
+      setUltravoxCallSessionId(null);
+      if (cs) {
+        void fetch('/api/end-call', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ callSessionId: cs, status: 'ended' }),
+          keepalive: true,
+        }).catch(() => {});
+      }
+    }
     setCalling(false);
     setStartedAt(null);
     log('Call ended', 'ok');
-  }, [log, isTelugu, tg, ux]);
+  }, [log, isTelugu, tg, ux, ultravoxCallSessionId]);
 
   const handleCallButton = useCallback(async () => {
     if (!calling) return start();
-    if (isTelugu) {
-      // mid-call press: toggle recording. End via dedicated control below.
-      if (tg.status === 'recording') {
-        log('Sending your reply…');
-        try { await tg.toggleRecording(); } catch (e) {
-          log(`turn error: ${e instanceof Error ? e.message : e}`, 'err');
-        }
-      } else if (tg.status === 'ready' || tg.status === 'speaking') {
-        log('Listening… click again to send', 'info');
-        try { await tg.toggleRecording(); } catch (e) {
-          log(`mic error: ${e instanceof Error ? e.message : e}`, 'err');
-        }
-      } else {
-        log(`Telugu busy (${tg.status})…`);
-      }
-    } else {
-      await end();
-    }
-  }, [calling, isTelugu, tg, end, start, log]);
+    await end();
+  }, [calling, end, start]);
 
   const ultravoxActive = !isTelugu && calling && (ux.status === 'listening' || ux.status === 'speaking' || ux.status === 'thinking' || ux.status === 'idle');
   const teluguActive = isTelugu && calling && tg.status !== 'idle' && tg.status !== 'ended';
@@ -132,17 +129,7 @@ export default function Page() {
   const micLevel = isTelugu ? tg.micLevel : ux.micLevel;
   const liveStatus = isTelugu ? tg.status : ux.status;
 
-  let buttonLabel = 'INITIATE CALL';
-  if (calling) {
-    if (isTelugu) {
-      if (tg.status === 'recording') buttonLabel = 'STOP & SEND';
-      else if (tg.status === 'ready' || tg.status === 'speaking') buttonLabel = 'TAP TO SPEAK';
-      else if (tg.status === 'thinking') buttonLabel = 'THINKING…';
-      else buttonLabel = 'CONNECTING…';
-    } else {
-      buttonLabel = 'END CALL';
-    }
-  }
+  const buttonLabel = calling ? 'END CALL' : 'INITIATE CALL';
 
   return (
     <>
@@ -178,16 +165,11 @@ export default function Page() {
           />
           <AgentCard statusText={calling ? liveStatus : 'Ready'} active={callActive} />
           <CallButton
-            active={calling && (!isTelugu || tg.status === 'recording')}
+            active={calling}
             label={buttonLabel}
             onClick={handleCallButton}
-            disabled={isTelugu && calling && (tg.status === 'thinking' || tg.status === 'connecting' || tg.status === 'speaking')}
+            disabled={false}
           />
-          {isTelugu && calling && (
-            <button className="call-btn" style={{ background: 'linear-gradient(135deg, #555, #333)', color: '#fff' }} onClick={end}>
-              END CALL
-            </button>
-          )}
         </aside>
         <section className="panel panel-right">
           <Waveform active={callActive} level={micLevel} />

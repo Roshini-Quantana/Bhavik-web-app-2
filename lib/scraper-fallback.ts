@@ -17,6 +17,25 @@ const INDUSTRY_KEYWORDS: Array<[string, string]> = [
   ['ai', 'AI / ML'],
 ];
 
+function cleanTitle(t: string): string {
+  if (!t) return '';
+  // Many corporate titles look like "Acme | Tagline" or "Acme - Buy Now".
+  // Take the first segment before common separators so we get just the brand.
+  const cleaned = t.split(/[|–—·•]| - |:\s/, 1)[0].trim();
+  return cleaned || t.trim();
+}
+
+export function deriveCompanyFromUrl(sourceUrl: string): string {
+  try {
+    const host = new URL(sourceUrl).hostname.replace(/^www\./i, '');
+    const root = host.split('.')[0] || '';
+    if (!root) return '';
+    return root.length <= 4 ? root.toUpperCase() : root.charAt(0).toUpperCase() + root.slice(1);
+  } catch {
+    return '';
+  }
+}
+
 export function extractCompanyFromHtml(html: string, _sourceUrl: string): CompanyContext {
   if (!html) return { company_name: '', summary: '', industry: '', services: [] };
 
@@ -24,7 +43,7 @@ export function extractCompanyFromHtml(html: string, _sourceUrl: string): Compan
 
   const ogSite = $('meta[property="og:site_name"]').attr('content')?.trim();
   const titleTag = $('title').first().text().trim();
-  const company_name = ogSite || titleTag || '';
+  const company_name = ogSite || cleanTitle(titleTag) || '';
 
   const metaDesc = $('meta[name="description"]').attr('content')?.trim();
   const ogDesc = $('meta[property="og:description"]').attr('content')?.trim();
@@ -52,29 +71,37 @@ export async function fetchAndScrape(url: string): Promise<CompanyContext> {
     const res = await fetch(url, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'BhavikScraper/1.0 (+demo)',
-        Accept: 'text/html',
+        // Many corporate sites (e.g. tcs.com) block non-browser UAs.
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml',
+        'Accept-Language': 'en-US,en;q=0.9',
       },
     });
-    if (!res.ok) return { company_name: '', summary: '', industry: '', services: [] };
+    if (!res.ok) {
+      return { company_name: deriveCompanyFromUrl(url), summary: '', industry: '', services: [] };
+    }
     const reader = res.body?.getReader();
+    let html: string;
     if (!reader) {
-      const text = await res.text();
-      return extractCompanyFromHtml(text.slice(0, 1_000_000), url);
+      html = (await res.text()).slice(0, 1_000_000);
+    } else {
+      let received = 0;
+      const chunks: Uint8Array[] = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.byteLength;
+        chunks.push(value);
+        if (received > 1_000_000) { controller.abort(); break; }
+      }
+      html = new TextDecoder().decode(Buffer.concat(chunks.map((c) => Buffer.from(c))));
     }
-    let received = 0;
-    const chunks: Uint8Array[] = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      received += value.byteLength;
-      chunks.push(value);
-      if (received > 1_000_000) { controller.abort(); break; }
-    }
-    const html = new TextDecoder().decode(Buffer.concat(chunks.map((c) => Buffer.from(c))));
-    return extractCompanyFromHtml(html, url);
+    const ctx = extractCompanyFromHtml(html, url);
+    if (!ctx.company_name) ctx.company_name = deriveCompanyFromUrl(url);
+    return ctx;
   } catch {
-    return { company_name: '', summary: '', industry: '', services: [] };
+    return { company_name: deriveCompanyFromUrl(url), summary: '', industry: '', services: [] };
   } finally {
     clearTimeout(timer);
   }

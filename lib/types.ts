@@ -28,4 +28,5 @@ export interface PrepareContextResponse {
   joinUrl: string;
   callId: string;
   companyContext: CompanyContext;
+  callSessionId: string | null;
 }

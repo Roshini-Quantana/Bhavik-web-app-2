@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stripThinkTags } from './sarvam-client';
+import { stripThinkTags, sarvamTts } from './sarvam-client';
 
 describe('stripThinkTags', () => {
   it('removes a balanced think block', () => {
@@ -14,5 +14,14 @@ describe('stripThinkTags', () => {
   });
   it('returns trimmed text unchanged when no tags', () => {
     expect(stripThinkTags('  plain text  ')).toBe('plain text');
+  });
+});
+
+describe('sarvamTts empty-text guard', () => {
+  it('throws before HTTP when text is empty string', async () => {
+    await expect(sarvamTts('key', { text: '', language: 'te-IN' })).rejects.toThrow(/text is empty/);
+  });
+  it('throws before HTTP when text is whitespace only', async () => {
+    await expect(sarvamTts('key', { text: '   \n\t  ', language: 'te-IN' })).rejects.toThrow(/text is empty/);
   });
 });

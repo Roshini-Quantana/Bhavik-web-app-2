@@ -52,6 +52,10 @@ export async function sarvamTts(
   apiKey: string,
   opts: SarvamTtsOpts
 ): Promise<string /* base64 wav */> {
+  const text = (opts.text ?? '').trim();
+  if (!text) {
+    throw new Error('Sarvam TTS: text is empty — upstream chat returned no usable reply');
+  }
   const res = await fetch(TTS_URL, {
     method: 'POST',
     headers: {
@@ -59,7 +63,7 @@ export async function sarvamTts(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      inputs: [opts.text],
+      text,
       target_language_code: opts.language,
       speaker: opts.speaker ?? 'anushka',
       model: 'bulbul:v2',
@@ -87,7 +91,9 @@ export async function sarvamStt(
 ): Promise<SarvamSttResult> {
   const form = new FormData();
   form.append('file', audioBlob, filename);
-  form.append('model', 'saaras:v2');
+  // saarika = in-language ASR (Telugu audio → Telugu text).
+  // saaras would translate to English, breaking the Telugu conversation flow.
+  form.append('model', 'saarika:v2.5');
   form.append('language_code', language);
 
   const res = await fetch(STT_URL, {
