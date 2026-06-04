@@ -34,13 +34,31 @@
 html, body {
   height: 100%;
   width: 100%;
-  background: var(--bg-base);
+  background: #040506;
   color: var(--text-primary);
   font-family: var(--font-ui);
   font-size: 13px;
   line-height: 1.5;
-  overflow: hidden;
+  overflow: auto;
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 1200px;
+  height: 750px;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 255, 157, 0.03);
 }
 
 /* scrollbar */
@@ -175,7 +193,8 @@ html, body {
   grid-template-columns: 420px 1fr;
   gap: 16px;
   padding: 16px;
-  height: calc(100vh - 48px);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -859,10 +878,27 @@ html, body {
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 900px) {
+  html, body {
+    height: auto;
+    overflow: auto;
+    display: block;
+    padding: 12px;
+  }
+
+  .app-container {
+    height: auto;
+    max-height: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
     overflow-y: auto;
+    height: auto;
+    flex: none;
   }
 
   .panel-left {

@@ -25,6 +25,12 @@ describe('buildSystemPrompt', () => {
     expect(p.toLowerCase()).toContain('hindi');
   });
 
+  it('embeds language directive for Arabic', () => {
+    const p = buildSystemPrompt(ctx, 'Direct', 'ar');
+    expect(p.toLowerCase()).toContain('arabic');
+    expect(p).toContain('شركتك');
+  });
+
   it('falls back gracefully when company fields are empty', () => {
     const p = buildSystemPrompt(
       { company_name: '', summary: '', industry: '' },
