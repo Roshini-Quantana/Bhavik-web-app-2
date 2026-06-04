@@ -10,6 +10,7 @@ import Transcript from '@/components/Transcript';
 import StatsBar from '@/components/StatsBar';
 import { useUltravox } from '@/lib/use-ultravox';
 import { useTelugu } from '@/lib/use-telugu';
+import { useRingtone } from '@/lib/use-ringtone';
 import type { Language, VoiceGender, Persona, PrepareContextResponse } from '@/lib/types';
 
 function now() {
@@ -34,7 +35,22 @@ export default function Page() {
 
   const ux = useUltravox();
   const tg = useTelugu();
+  const rt = useRingtone();
   const isTelugu = language === 'te-in';
+
+  const showRinging = calling && (
+    isTelugu 
+      ? (tg.status === 'connecting')
+      : (ux.status === 'idle' || ux.status === 'connecting' || ux.status === 'disconnected')
+  );
+
+  useEffect(() => {
+    if (showRinging) {
+      rt.play();
+    } else {
+      rt.stop();
+    }
+  }, [showRinging, rt]);
 
   useEffect(() => {
     if (!startedAt) {
@@ -121,13 +137,14 @@ export default function Page() {
     await end();
   }, [calling, end, start]);
 
-  const ultravoxActive = !isTelugu && calling && (ux.status === 'listening' || ux.status === 'speaking' || ux.status === 'thinking' || ux.status === 'idle');
+  const ultravoxActive = !isTelugu && calling && (ux.status === 'listening' || ux.status === 'speaking' || ux.status === 'thinking' || ux.status === 'idle' || ux.status === 'connecting');
   const teluguActive = isTelugu && calling && tg.status !== 'idle' && tg.status !== 'ended';
   const callActive = ultravoxActive || teluguActive;
 
   const messages = isTelugu ? tg.messages : ux.messages;
   const micLevel = isTelugu ? tg.micLevel : ux.micLevel;
   const liveStatus = isTelugu ? tg.status : ux.status;
+  const displayStatus = showRinging ? 'ringing' : liveStatus;
 
   const buttonLabel = calling ? 'END CALL' : 'INITIATE CALL';
 
@@ -145,7 +162,7 @@ export default function Page() {
         <div className="topnav-right">
           <div className={`status-badge${calling ? ' calling' : ''}`}>
             <span className="status-dot"></span>
-            <span className="status-text">{calling ? liveStatus.toUpperCase() : 'STANDBY'}</span>
+            <span className="status-text">{calling ? displayStatus.toUpperCase() : 'STANDBY'}</span>
             <span className="status-version">v2.0</span>
           </div>
         </div>
@@ -163,7 +180,7 @@ export default function Page() {
             setPersona={setPersona}
             disabled={calling}
           />
-          <AgentCard statusText={calling ? liveStatus : 'Ready'} active={callActive} />
+          <AgentCard statusText={calling ? (showRinging ? 'Ringing...' : liveStatus) : 'Ready'} active={callActive} />
           <CallButton
             active={calling}
             label={buttonLabel}
