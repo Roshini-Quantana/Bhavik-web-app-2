@@ -4,9 +4,10 @@ export type Language =
   | 'en-gb'
   | 'en-au'
   | 'hi-in'
-  | 'te-in';
+  | 'te-in'
+  | 'ar';
 
-export type VoiceGender = 'male' | 'female' | 'neutral';
+export type VoiceGender = 'male' | 'female';
 
 export type Persona = 'Professional' | 'Friendly' | 'Direct' | 'Consultative';
 

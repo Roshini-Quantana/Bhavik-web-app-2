@@ -30,4 +30,10 @@ describe('pickVoice', () => {
     expect(pickVoice('te-in', 'male')).toBe('Krishna-Hindi-Urdu');
     expect(pickVoice('te-in', 'female')).toBe('Muskaan-Hindi-Urdu');
   });
+  it('maps ar male', () => {
+    expect(pickVoice('ar', 'male')).toBe('f88eb366-df8e-4115-9f7c-ebf3abac7d1b');
+  });
+  it('maps ar female', () => {
+    expect(pickVoice('ar', 'female')).toBe('d766b9e3-69df-4727-b62f-cd0b6772c2ad');
+  });
 });

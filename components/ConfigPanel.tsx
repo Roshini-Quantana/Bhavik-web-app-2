@@ -52,6 +52,7 @@ export default function ConfigPanel(p: Props) {
               <option value="en-au">EN — Australia</option>
               <option value="hi-in">HI — India</option>
               <option value="te-in">TE — India</option>
+              <option value="ar">AR — Arabic</option>
             </select>
             <span className="select-arrow">▾</span>
           </div>
@@ -64,7 +65,6 @@ export default function ConfigPanel(p: Props) {
             >
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="neutral">Neutral</option>
             </select>
             <span className="select-arrow">▾</span>
           </div>

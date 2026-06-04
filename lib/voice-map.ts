@@ -26,5 +26,9 @@ export function pickVoice(language: Language, gender: VoiceGender): string {
       if (gender === 'male') return 'Krishna-Hindi-Urdu';
       if (gender === 'female') return 'Muskaan-Hindi-Urdu';
       return 'Anjali-Hindi-Urdu';
+    case 'ar':
+      if (gender === 'male') return 'f88eb366-df8e-4115-9f7c-ebf3abac7d1b';
+      if (gender === 'female') return 'd766b9e3-69df-4727-b62f-cd0b6772c2ad';
+      return 'd766b9e3-69df-4727-b62f-cd0b6772c2ad';
   }
 }

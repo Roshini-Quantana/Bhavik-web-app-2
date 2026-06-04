@@ -132,7 +132,7 @@ export default function Page() {
   const buttonLabel = calling ? 'END CALL' : 'INITIATE CALL';
 
   return (
-    <>
+    <div className="app-container">
       <nav className="topnav">
         <div className="topnav-left">
           <span className="brand">BHAVIK</span>
@@ -178,6 +178,6 @@ export default function Page() {
           <StatsBar turns={messages.length} durationSec={duration} />
         </section>
       </main>
-    </>
+    </div>
   );
 }
