@@ -19,7 +19,7 @@ export function stripThinkTags(s: string): string {
 export async function sarvamChat(
   apiKey: string,
   messages: SarvamChatMessage[],
-  opts: { maxTokens?: number; temperature?: number } = {}
+  opts: { maxTokens?: number; temperature?: number; reasoningEffort?: 'low' | 'medium' | 'high' | null } = {}
 ): Promise<string> {
   const res = await fetch(CHAT_URL, {
     method: 'POST',
@@ -28,10 +28,11 @@ export async function sarvamChat(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'sarvam-m',
+      model: 'sarvam-30b',
       messages,
       max_tokens: opts.maxTokens ?? 400,
       temperature: opts.temperature ?? 0.7,
+      reasoning_effort: opts.reasoningEffort !== undefined ? opts.reasoningEffort : null,
     }),
   });
   if (!res.ok) {
