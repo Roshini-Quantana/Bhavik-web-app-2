@@ -39,7 +39,7 @@ html, body {
   font-family: var(--font-ui);
   font-size: 13px;
   line-height: 1.5;
-  overflow: auto;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@ html, body {
   width: 100%;
   max-width: 1200px;
   height: 750px;
-  max-height: 95vh;
+  max-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
   background: var(--bg-surface);
