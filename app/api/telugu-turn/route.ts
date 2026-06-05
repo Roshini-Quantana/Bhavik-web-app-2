@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sarvamChat, sarvamTts, sarvamStt } from '@/lib/sarvam-client';
+import { sarvamChat, sarvamTts, sarvamStt, normalizeTeluguTranscript } from '@/lib/sarvam-client';
 import { getSession, appendTurn, nextTurnIndex } from '@/lib/telugu-session-store';
 import { recordTurn } from '@/lib/supabase-sessions';
 import { uploadAudio, type AudioFormat } from '@/lib/supabase-storage';
@@ -69,7 +69,8 @@ export async function POST(req: NextRequest) {
           : `stt error: ${msg.slice(0, 200)}`,
       });
     }
-    const userText = stt.transcript.trim();
+    const rawUserText = stt.transcript.trim();
+    const userText = normalizeTeluguTranscript(rawUserText);
     if (!userText) {
       return NextResponse.json({
         userText: '',
@@ -80,6 +81,11 @@ export async function POST(req: NextRequest) {
     }
 
     appendTurn(sessionId, 'user', userText);
+
+    // Quick debugging tests requested by the user
+    console.log("TRANSCRIPT:", userText);
+    console.log("USER_MESSAGE:", userText);
+    console.log("LLM_MESSAGES:", session.history);
 
     // Persist the user turn + raw audio in parallel with the LLM call so
     // Supabase latency doesn't show up in user-perceived turn time.
@@ -104,7 +110,7 @@ export async function POST(req: NextRequest) {
       });
     })();
 
-    const reply = await sarvamChat(sarvamKey, session.history, { maxTokens: 600 });
+    const reply = await sarvamChat(sarvamKey, session.history, { maxTokens: 1200 });
     if (!reply.trim()) {
       throw new Error('Sarvam chat returned empty reply (model may have exhausted budget on reasoning)');
     }
