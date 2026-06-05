@@ -286,7 +286,14 @@ export function useTelugu(): UseTeluguApi {
       const res = await fetch('/api/telugu-turn', { method: 'POST', body: form });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        console.error('[telugu] turn http error', j?.error);
+        console.error('[telugu] turn http error', res.status, j?.error);
+        // 404 = session was lost (server restart / HMR). End the call cleanly
+        // so the UI shows it's over instead of looping against a dead session.
+        if (res.status === 404) {
+          endedRef.current = true;
+          setStatus('ended');
+          return;
+        }
       } else {
         const data = await res.json();
         if (data.userText) appendMsg({ speaker: 'user', text: data.userText, final: true });
