@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stripThinkTags, sarvamTts } from './sarvam-client';
+import { stripThinkTags, sarvamTts, normalizeTeluguTranscript } from './sarvam-client';
 
 describe('stripThinkTags', () => {
   it('removes a balanced think block', () => {
@@ -25,3 +25,17 @@ describe('sarvamTts empty-text guard', () => {
     await expect(sarvamTts('key', { text: '   \n\t  ', language: 'te-IN' })).rejects.toThrow(/text is empty/);
   });
 });
+
+describe('normalizeTeluguTranscript', () => {
+  it('corrects phonetic n8n mishearings', () => {
+    expect(normalizeTeluguTranscript('నేను ఎన్ఏ 10 లో వర్క్ చేస్తున్నాను')).toBe('నేను n8n లో వర్క్ చేస్తున్నాను');
+    expect(normalizeTeluguTranscript('నేను ఎన్ ఏ 10 లో వర్క్ చేస్తున్నాను')).toBe('నేను n8n లో వర్క్ చేస్తున్నాను');
+    expect(normalizeTeluguTranscript('ఎన్ ఎయిట్ ఎన్ ఉపయోగించి')).toBe('n8n ఉపయోగించి');
+  });
+
+  it('corrects common abbreviations', () => {
+    expect(normalizeTeluguTranscript('మీ సంస్థ ఏ ఐ ప్రాజెక్టులు చేస్తోందా')).toBe('మీ సంస్థ AI ప్రాజెక్టులు చేస్తోందా');
+    expect(normalizeTeluguTranscript('మా సిస్టమ్ ఏ పీ ఐ వాడతాము')).toBe('మా సిస్టమ్ API వాడతాము');
+  });
+});
+

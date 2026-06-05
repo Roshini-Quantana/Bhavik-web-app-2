@@ -80,15 +80,26 @@ export async function POST(req: NextRequest) {
     : putCachedCompany(urlStr, context, cacheSource);
 
   try {
+    // Build a concrete, pre-filled opener in Telugu that mirrors the English
+    // script exactly. Using real context values prevents the LLM from
+    // improvising wrong identity (e.g. "calling from Quantana") or generic
+    // filler. The model is instructed to speak this verbatim.
+    const companyName = context.company_name || 'మీ సంస్థ';
+    const industry = context.industry || 'ఏ ఐ ఆధారిత ఇన్నోవేషన్';
+    const teluguOpener =
+      `నమస్కారం, నేను భవిక్ మాట్లాడుతున్నాను.\n\n` +
+      `${companyName} వెబ్సైట్ చూశాను. ${industry} రంగంలో మీ సంస్థ చేస్తున్న పని చాలా ఆకట్టుకుంది.\n\n` +
+      `ఈ రోజు మీరు ఎలా ఉన్నారు?`;
+
     const firstUserPrime =
-      'Start the cold call now with a short, natural opener in Telugu (2 sentences max). Do not show your reasoning; respond with only the Telugu opener.';
+      `Start the cold call now. Speak ONLY the following Telugu opener verbatim — do not change, translate, or add anything:\n\n${teluguOpener}`;
     const agentText = await sarvamChat(
       sarvamKey,
       [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: firstUserPrime },
       ],
-      { maxTokens: 600 }
+      { maxTokens: 1200 }
     );
 
     if (!agentText.trim()) {
